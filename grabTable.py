@@ -6,29 +6,46 @@ J. Chanenson
 
 import yaml
 from selenium import webdriver
+from selenium.webdriver.firefox.service import Service  # Import the Service class
+from selenium.webdriver.firefox.options import Options  # Import FirefoxOptions
 from selenium.webdriver.common.by import By
-import time
+import time, os
 import pandas as pd
 from bs4 import BeautifulSoup
 
 # Step 1: Load login credentials from the YAML file
-with open('credentials.yml', 'r') as file:
+cred_f = "cred.yml"
+with open(cred_f, 'r') as file:
     config = yaml.safe_load(file)
 
 username = config['login']['username']
 password = config['login']['password']
 
+print(f"Loaded creds from {cred_f}")
+
 # Step 2: Set up Selenium with Firefox
-driver_path = '/path/to/geckodriver'
-driver = webdriver.Firefox(executable_path=driver_path)
+driver_path = 'geckodriver.exe'
+
+## Because selenium is being fussy 
+# Set the path to the Firefox binary
+firefox_binary_path = r'C:\Program Files\Mozilla Firefox\firefox.exe'
+# Create a Service object with the path to geckodriver
+service = Service(executable_path=driver_path)
+# Create Firefox options and set the binary location
+options = Options()
+options.binary_location = firefox_binary_path
+
+# Initialize the WebDriver with the service object and options
+driver = webdriver.Firefox(service=service, options=options)
+
 
 # Step 3: Log in to the website using credentials from the YAML file
-driver.get('https://example.com/login')  # Replace with the actual URL
+driver.get('exampl')  
 
 # Find and fill login form fields using credentials from the YAML file
-username_field = driver.find_element(By.ID, 'username_id')  # Replace with actual ID
-password_field = driver.find_element(By.ID, 'password_id')  # Replace with actual ID
-login_button = driver.find_element(By.ID, 'login_button_id')  # Replace with actual ID
+username_field = driver.find_element(By.ID, 'username')  
+password_field = driver.find_element(By.ID, 'password') 
+login_button = driver.find_element(By.XPATH, '//input[@value="Login"]') 
 
 # Enter the credentials from the YAML file
 username_field.send_keys(username)
@@ -40,6 +57,7 @@ time.sleep(5)
 
 # Step 4: Initialize an empty list to hold all data
 all_data = []
+page_counter = 1
 
 # Step 5: Pagination loop - keep going while there's a "Next" button
 while True:
@@ -55,10 +73,16 @@ while True:
     # Append the DataFrame to the list
     all_data.append(df)
     
-    # Print the current DataFrame to verify (optional)
-    print(df.head())
+    # Step 7: Display Data and Handle Pagination
+    if page_counter == 1:
+        # On the first page, display the head of the DataFrame
+        print(df.head())
+    else:
+        # For subsequent pages, clear the screen and print the page number
+        os.system('cls' if os.name == 'nt' else 'clear')  # Clear the screen (Windows: 'cls', Unix-like: 'clear')
+        print(f"Currently on page {page_counter}")
     
-    # Step 7: Check for the presence of a "Next" button
+    # Step 8: Check for the presence of a "Next" button
     try:
         # Locate the "Next" button and click if it exists
         next_button = driver.find_element(By.LINK_TEXT, 'Next')  # Adjust this if the button has a different text or XPath
@@ -72,18 +96,23 @@ while True:
         
         # Wait for the next page to load
         time.sleep(3)
+
+        # Increment the page counter
+        page_counter += 1
     
     except:
         # If there's no "Next" button or it cannot be clicked, exit the loop
         break
 
-# Step 8: Combine all the dataframes into one
+print(f"Final page grabbed is {page_counter}")
+
+# Step 9: Combine all the dataframes into one
 final_df = pd.concat(all_data, ignore_index=True)
 
-# Step 9: Save the combined DataFrame to a CSV file
+# Step 10: Save the combined DataFrame to a CSV file
 final_df.to_csv('extracted_table_data.csv', index=False)
 
-# Optional: Close the browser after the process is complete
+# Close the browser after the process is complete
 driver.quit()
 
 print("Data extraction complete. Saved to 'extracted_table_data.csv'.")
