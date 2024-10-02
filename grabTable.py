@@ -1,5 +1,31 @@
 """"
 Grab table from HTML page and save to csv file
+
+This script automates the process of logging into a website, navigating through paginated results, 
+and extracting data from an HTML table into a pandas DataFrame. The extracted data is then stored 
+in a list, and you can modify it to save to a file as needed.
+
+Requirements:
+- Selenium
+- pandas
+- BeautifulSoup4
+- lxml
+
+Usage:
+1. Ensure you have the required libraries installed:
+   pip install selenium pandas beautifulsoup4 lxml
+
+2. Configure your login credentials in the `config.yaml` file in the same directory.
+
+3. Run the script:
+   python grabTable.py
+
+4. The script will log into the website, extract table data, and print the current page number 
+   while iterating through the pages.
+
+Note:
+- Update the table ID and pagination selectors according to the website's structure.
+
 10/2/2024
 J. Chanenson
 """
@@ -40,7 +66,7 @@ driver = webdriver.Firefox(service=service, options=options)
 
 
 # Step 3: Log in to the website using credentials from the YAML file
-driver.get('exampl')  
+driver.get('https://example.com')  
 
 # Find and fill login form fields using credentials from the YAML file
 username_field = driver.find_element(By.ID, 'username')  
