@@ -19,11 +19,7 @@ This project is a Python script that automates the extraction of data from an HT
 ## Installation
 1. Clone the repository:
 
-2. Install the required packages:
-
-```bash
-    pip install selenium pandas beautifulsoup4 lxml
-```
+2. Install the required packages: `pip install selenium pandas beautifulsoup4 lxml`
 
 3. Ensure you have the appropriate web driver (e.g., [geckodriver for Firefox](https://github.com/mozilla/geckodriver/releases)) installed and included in your system's PATH.
 
